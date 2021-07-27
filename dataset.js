@@ -56,6 +56,13 @@ module.exports = class Dataset{
         return url;
     }
 
+    buildUrl(fileEntry, path){
+        if (!fileEntry.hash) throw new Error("Not a valid file entry object");
+        
+        let url = `${this.baseApi}/build/${fileEntry.hash}/${path}`;
+        return url;
+    }
+
     async download(paths){
         return this.registry.postRequest(`${this.baseApi}/download`, { path: paths });
     }
