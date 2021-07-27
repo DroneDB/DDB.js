@@ -31,5 +31,10 @@ module.exports = {
         const { registryUrl, org, ds, path } = this.parseUri(uri);
         const dataset = new Registry(registryUrl).Organization(org).Dataset(ds);
         return [dataset, path];
+    },
+
+    datasetFromUri: function(uri){
+        const [dataset, _] = this.datasetPathFromUri(uri);
+        return dataset;
     }
 }
