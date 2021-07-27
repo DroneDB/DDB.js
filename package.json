@@ -1,0 +1,27 @@
+{
+  "name": "ddb-js",
+  "version": "1.0.0",
+  "description": "DroneDB Web API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DroneDB/DDB.js.git"
+  },
+  "keywords": [
+    "dronedb"
+  ],
+  "author": "Piero Toffanin",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/DroneDB/DDB.js/issues"
+  },
+  "homepage": "https://github.com/DroneDB/DDB.js#readme",
+  "dependencies": {
+    "formdata-node": "^2.4.0",
+    "node-fetch": "^2.6.1",
+    "node-localstorage": "^2.1.6"
+  }
+}
