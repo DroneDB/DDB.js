@@ -33,8 +33,8 @@ module.exports = {
         return [dataset, path];
     },
 
-    datasetFromUri: function(uri){
-        const [dataset, _] = this.datasetPathFromUri(uri);
-        return dataset;
+    entryFromFile: function(file){
+        const [dataset, _] = this.datasetPathFromUri(file.path);
+        return dataset.Entry(file.entry);
     }
 }
