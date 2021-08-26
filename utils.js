@@ -36,5 +36,14 @@ module.exports = {
     datasetFromUri: function(uri){
         const [dataset, _] = this.datasetPathFromUri(uri);
         return dataset;
+    },
+
+    pathFromUri: function(uri){
+        if (this.isDDBUri(uri)){
+            const [_, path] = this.datasetPathFromUri(uri);
+            return path;
+        }else if (uri.startsWith("file://")){
+            return uri.replace(/^file:\/\//, "");
+        }else throw Error("Cannot extract path from URI: " + uri);
     }
 }
