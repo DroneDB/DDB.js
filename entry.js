@@ -2,7 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
+class Entry{
+    constructor(dataset, entry){
+        this.dataset = dataset;
+        Object.assign(this, entry);
+
+        // Quick check
+        if (!this.hash) throw new Error("Not a valid file entry object");
+    }
+
+    buildUrl(path){
+        let url = `${this.dataset.baseApi}/build/${this.hash}/${path}`;
+        return url;
+    }
+
+    async getEpt(){
+        // TODO: head request, throw exception if file does not exist?
+        return this.buildUrl("ept/ept.json");
+    }
+}
+
 module.exports = {
+    Entry,
     type: {
         UNDEFINED: 0,
         DIRECTORY: 1,

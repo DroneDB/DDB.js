@@ -45,5 +45,10 @@ module.exports = {
         }else if (uri.startsWith("file://")){
             return uri.replace(/^file:\/\//, "");
         }else throw Error("Cannot extract path from URI: " + uri);
+    },
+    
+    entryFromFile: function(file){
+        const [dataset, _] = this.datasetPathFromUri(file.path);
+        return dataset.Entry(file.entry);
     }
 }

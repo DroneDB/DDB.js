@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+const { Entry } = require('./entry');
 
 module.exports = class Dataset{
     constructor(registry, org, ds){
@@ -56,11 +57,8 @@ module.exports = class Dataset{
         return url;
     }
 
-    buildUrl(fileEntry, path){
-        if (!fileEntry.hash) throw new Error("Not a valid file entry object");
-        
-        let url = `${this.baseApi}/build/${fileEntry.hash}/${path}`;
-        return url;
+    Entry (fileEntry){
+        return new Entry(this, fileEntry);
     }
 
     async download(paths){
