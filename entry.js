@@ -17,8 +17,10 @@ class Entry{
     }
 
     async getEpt(){
-        // TODO: head request, throw exception if file does not exist?
-        return this.buildUrl("ept/ept.json");
+        const eptUrl = this.buildUrl("ept/ept.json");
+        
+        if (await this.dataset.registry.headRequest(eptUrl)) return eptUrl;
+        else throw new Error(`${eptUrl} is not available`);
     }
 }
 
