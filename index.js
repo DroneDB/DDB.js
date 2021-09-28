@@ -7,6 +7,7 @@ const Registry = require('./registry');
 const entry = require('./entry');
 const thumbs = require('./thumbs');
 const fetchEntries = require('./fetchEntries');
+const searchEntries = require('./searchEntries');
 const utils = require('./utils');
 const pathutils = require('./pathutils');
 
@@ -14,6 +15,7 @@ const ddb = {
     Tag, Dataset, Registry,
     entry, utils, pathutils,
     fetchEntries,
+    searchEntries,
     thumbs,
 
     tile: {},
