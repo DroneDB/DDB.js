@@ -176,6 +176,7 @@ module.exports = class Registry{
         const response = await fetch(`${this.url}${endpoint}`, options);
         if (response.status === 204) return true;
         else if (response.status === 401) throw new Error("Unauthorized");
+        else if (method === "HEAD") return response.status === 200;
         else{
             const contentType = response.headers.get("Content-Type");
             if (contentType && contentType.indexOf("application/json") !== -1){
@@ -208,6 +209,10 @@ module.exports = class Registry{
 
     async deleteRequest(endpoint, body = {}){
         return this.makeRequest(endpoint, "DELETE", body);
+    }
+
+    async headRequest(endpoint){
+        return this.makeRequest(endpoint, "HEAD");
     }
 
     Organization(name){
