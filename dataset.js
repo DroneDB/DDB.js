@@ -78,6 +78,10 @@ module.exports = class Dataset{
         return this.registry.postRequest(`${this.baseApi}/list`, { path });
     }
 
+    async search(query){
+        return this.registry.postRequest(`${this.baseApi}/search`, { query });
+    }
+
     async delete(){
         return this.registry.deleteRequest(`${this.baseApi}`);
     }
