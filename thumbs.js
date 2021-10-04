@@ -10,7 +10,8 @@ module.exports = {
         entryType = parseInt(entryType);
         return entryType === entry.type.GEOIMAGE ||
             entryType === entry.type.GEORASTER ||
-            entryType === entry.type.IMAGE;
+            entryType === entry.type.IMAGE ||
+            entryType === entry.type.POINTCLOUD;
     },
 
     fetch: function(uri, thumbSize = 256){
