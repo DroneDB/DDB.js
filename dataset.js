@@ -44,9 +44,11 @@ module.exports = class Dataset{
     }
 
     thumbUrl(path, size){
-        let url = `${this.baseApi}/thumb?path=${encodeURIComponent(path)}`;
-        if (size) url += `&size=${size}`;
-        return url;
+       if (!size) size = 256;
+
+       let url = `/static/thumbs/${this.org}/${this.ds}/${size}/${encodeURIComponent(path)}`;
+
+       return url;
     }
 
     tileUrl(path, tz, tx, ty, options = {}){
