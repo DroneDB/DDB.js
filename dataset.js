@@ -52,10 +52,9 @@ module.exports = class Dataset{
     }
 
     tileUrl(path, tz, tx, ty, options = {}){
-        let retina = "";
-        if (options.retina) retina = "@2x";
+        
+        let url = `/static/tiles/${this.org}/${this.ds}/${tz}/${tx}/${ty}/${options.retina ? 1 : 0}/${encodeURIComponent(path)}.png`;
 
-        let url = `${this.baseApi}/tiles/${tz}/${tx}/${ty}${retina}.png?path=${path}`;
         return url;
     }
 
