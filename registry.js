@@ -56,6 +56,29 @@ module.exports = class Registry{
         }
     }
 
+    async getStorageInfo() {
+        if (this.isLoggedIn()) {
+            const res = await this.getRequest(`/users/storage`);
+
+            if (this.used != null) {
+                return {
+                    total: res.total,
+                    used: null
+                };
+            } else {
+                return {
+                    total: res.total,
+                    used: res.used,
+                    free: res.total - res.used,             
+                    usedPercentage: res.used / res.total   
+                };
+            }
+            
+        } else {
+            throw new Error("not logged in");
+        }
+    }
+
     async refreshToken(){
         if (this.isLoggedIn()){
             const res = await fetch(`${this.url}/users/authenticate/refresh`, {
