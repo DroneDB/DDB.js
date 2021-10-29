@@ -60,10 +60,10 @@ module.exports = class Registry{
         if (this.isLoggedIn()) {
             const res = await this.getRequest(`/users/storage`);
 
-            if (this.used != null) {
+            if (res.total == null) {
                 return {
-                    total: res.total,
-                    used: null
+                    total: null,
+                    used: res.used
                 };
             } else {
                 return {
