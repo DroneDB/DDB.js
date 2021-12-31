@@ -4,6 +4,7 @@
 
 const Registry = require('./registry');
 const UriRegex = /(?<proto>ddb|ddb\+unsafe):\/\/(?<remote>[^/?#]*)\/(?<org>[^/?#]*)\/(?<ds>[^/?#]*)\/?(?<path>.*)/;
+const pathutils = require('./pathutils');
 
 module.exports = {
     // Given a uri, decomposes it
@@ -50,5 +51,13 @@ module.exports = {
     entryFromFile: function(file){
         const [dataset, _] = this.datasetPathFromUri(file.path);
         return dataset.Entry(file.entry);
+    },
+
+    entryLabel: function(entry){
+        if (entry.properties?.meta?.name?.data !== undefined){
+            return entry.properties.meta.name.data;
+        }else{
+            return pathutils.basename(entry.path);
+        }
     }
 }

@@ -107,6 +107,14 @@ module.exports = class Dataset{
         return this.registry.postRequest(`${this.baseApi}/rename`, { slug });
     }
 
+    async metaSet(key, data, path = ""){
+        if (!key) throw new Error(`Invalid key ${key}`);
+        if (data === undefined) throw new Error(`Invalid data`);
+        return this.registry.postRequest(`${this.baseApi}/meta/set`, {
+            key, data, path
+        });
+    }
+
     async setPublic(flag){
         return this.registry.postRequest(`${this.baseApi}/chattr`, { attrs: JSON.stringify(
             { public: flag }
