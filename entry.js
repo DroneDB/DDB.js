@@ -37,7 +37,8 @@ module.exports = {
         DRONEDB: 7,
         MARKDOWN: 8,
         VIDEO: 9,
-        GEOVIDEO: 10
+        GEOVIDEO: 10,
+        MODEL: 11
     },
 
     typeToHuman: function(t){
@@ -64,6 +65,8 @@ module.exports = {
                 return "Video";
             case this.type.GEOVIDEO:
                 return "GeoVideo";
+            case this.type.MODEL:
+                return "Model";
             default:
                 return "?";
         }
