@@ -156,14 +156,47 @@ module.exports = class Registry {
         }
     }
 
+    async createOrganization(slug, name, description, isPublic) {
+            
+        if (!this.isLoggedIn())
+            throw new Error("not logged in");
+
+        return await this.postRequest(`/orgs`, {
+            slug,
+            name,
+            description,
+            isPublic            
+        });
+    }
+
+    async updateOrganization(slug, name, description, isPublic) {
+        if (!this.isLoggedIn())
+            throw new Error("not logged in");
+
+        return await this.putRequest(`/orgs/${slug}`, {
+            slug: slug,
+            name,
+            description,
+            isPublic
+        });
+    }
+
     async getOrganizations() {
 
-        if (!this.isLoggedIn()) 
+        if (!this.isLoggedIn())
             throw new Error("not logged in");
 
         const res = await this.getRequest(`/orgs`);
         return res.map(org => new Organization(this, org));
-        
+
+    }
+
+    async deleteOrganization(orgSlug) {
+
+        if (!this.isLoggedIn())
+            throw new Error("not logged in");
+
+        return await this.deleteRequest(`/orgs/${orgSlug}`);
     }
 
     clearCredentials() {
@@ -188,7 +221,9 @@ module.exports = class Registry {
     async makeRequest(endpoint, method = "GET", body = null) {
         const headers = {};
         const authToken = this.getAuthToken();
+
         if (authToken) headers.Authorization = `Bearer ${authToken}`;
+
         const options = {
             method,
             headers
@@ -197,35 +232,52 @@ module.exports = class Registry {
         if (body) {
             const formData = new FormData();
             for (let k in body) {
-                if (Array.isArray(body[k])) {
+                if (Array.isArray(body[k]))
                     body[k].forEach(v => formData.append(k, v));
-                } else {
+                else
                     formData.append(k, body[k]);
-                }
+
             }
             options.body = formData;
         }
 
         const response = await fetch(`${this.url}${endpoint}`, options);
-        if (response.status === 204) return true;
-        else if (response.status === 401) throw new Error("Unauthorized");
-        else if (method === "HEAD") return response.status === 200;
-        else {
-            const contentType = response.headers.get("Content-Type");
-            if (contentType && contentType.indexOf("application/json") !== -1) {
-                let json = await response.json();
-                if (json.error) throw new Error(json.error);
 
-                if (response.status === 200 || response.status === 201) return json;
-                else throw new Error(`Server responded with: ${JSON.stringify(json)}`);
-            } else if (contentType && contentType.indexOf("text/") !== -1) {
-                let text = await response.text();
-                if (response.status === 200 || response.status === 201) return text;
-                else throw new Error(`Server responded with: ${text}`);
-            } else {
-                throw new Error(`Server responded with: ${await response.text()}`);
-            }
-        }
+        if (response.status === 204)
+            return true;
+
+        if (response.status === 401)
+            throw new Error("Unauthorized");
+
+        if (method === "HEAD")
+            return response.status === 200;
+
+        const contentType = response.headers.get("Content-Type");
+
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+
+            let json = await response.json();
+
+            if (json.error)
+                throw new Error(json.error);
+
+            if (response.status !== 200 && response.status !== 201)
+                throw new Error(`Server responded with: ${JSON.stringify(json)}`);
+
+            return json;
+
+        } else if (contentType && contentType.indexOf("text/") !== -1) {
+
+            let text = await response.text();
+
+            if (response.status !== 200 && response.status !== 201) 
+                throw new Error(`Server responded with: ${text}`);
+
+            return text;
+
+        } else
+            throw new Error(`Server responded with: ${await response.text()}`);
+
     }
 
     async getRequest(endpoint) {
