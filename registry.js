@@ -156,6 +156,16 @@ module.exports = class Registry {
         }
     }
 
+    async getOrganizations() {
+
+        if (!this.isLoggedIn()) 
+            throw new Error("not logged in");
+
+        const res = await this.getRequest(`/orgs`);
+        return res.map(org => new Organization(this, org));
+        
+    }
+
     clearCredentials() {
         localStorage.removeItem(`${this.url}_jwt_token`);
         localStorage.removeItem(`${this.url}_jwt_token_expires`);
