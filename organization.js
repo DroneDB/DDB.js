@@ -4,17 +4,17 @@
 
 const Dataset = require('./dataset');
 
- module.exports = class Organization{
-    constructor(registry, org){
+module.exports = class Organization {
+    constructor(registry, org) {
         this.registry = registry;
         this.org = org;
     }
 
-    async datasets(){
+    async datasets() {
         return this.registry.getRequest(`/orgs/${this.org}/ds`);
     }
 
-    Dataset(ds){
+    Dataset(ds) {
         return new Dataset(this.registry, this.org, ds);
     }
- };
+};
