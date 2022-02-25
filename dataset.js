@@ -78,6 +78,17 @@ module.exports = class Dataset{
         return this.registry.postRequest(`${this.baseApi}/list`, { path });
     }
 
+    async listOne(path){
+        const l = await this.list(path);
+        if (l.length === 1){
+            return l[0];
+        }else if (l.length === 0){
+            throw new Error(`Cannot find: ${path}. It might have been renamed or moved.`);
+        }else{
+            throw new Error("listOne returned more than 1 element");
+        }
+    }
+
     async search(query){
         return this.registry.postRequest(`${this.baseApi}/search`, { query });
     }
