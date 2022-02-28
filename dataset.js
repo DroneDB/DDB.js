@@ -89,7 +89,7 @@ module.exports = class Dataset {
         }
     }
 
-    async search(query) {
+    async search(query){
         return this.registry.postRequest(`${this.baseApi}/search`, { query });
     }
 
