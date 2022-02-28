@@ -6,7 +6,7 @@ const { parseUri, isDDBUri } = require('./utils');
 const Registry = require('./registry');
 
 module.exports = {
-    supportedForType: function(entryType) {
+    supportedForType: function (entryType) {
         entryType = parseInt(entryType);
         return entryType === entry.type.GEOIMAGE ||
             entryType === entry.type.GEORASTER ||
@@ -14,19 +14,19 @@ module.exports = {
             entryType === entry.type.POINTCLOUD;
     },
 
-    fetch: function(uri, thumbSize = 256){
-        if (isDDBUri(uri)){
+    fetch: function (uri, thumbSize = 256) {
+        if (isDDBUri(uri)) {
             const { registryUrl, org, ds, path } = parseUri(uri);
             const dataset = new Registry(registryUrl).Organization(org).Dataset(ds);
             return dataset.thumbUrl(path, thumbSize);
-        }else if (uri.startsWith("file://")){
+        } else if (uri.startsWith("file://")) {
             // Local file, use getFromUserCache (if available)
-            if (this.getFromUserCache){
+            if (this.getFromUserCache) {
                 return this.getFromUserCache(uri.substring("file://".length), { thumbSize });
-            }else{
+            } else {
                 throw new Error("ddb.thumbs.getFromUserCache is only available in NodeJS. Did you call registerNativeBindings?");
             }
-        }else{
+        } else {
             throw new Error(`Unsupported URI: ${uri}`);
         }
     }

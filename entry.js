@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-class Entry{
-    constructor(dataset, entry){
+class Entry {
+    constructor(dataset, entry) {
         this.dataset = dataset;
         Object.assign(this, entry);
 
@@ -11,14 +11,14 @@ class Entry{
         if (!this.hash) throw new Error("Not a valid file entry object");
     }
 
-    buildUrl(path){
+    buildUrl(path) {
         let url = `${this.dataset.baseApi}/build/${this.hash}/${path}`;
         return url;
     }
 
-    async getEpt(){
+    async getEpt() {
         const eptUrl = this.buildUrl("ept/ept.json");
-        
+
         if (await this.dataset.registry.headRequest(eptUrl)) return eptUrl;
         else throw new Error(`${eptUrl} is not available`);
     }
@@ -47,8 +47,8 @@ module.exports = {
         MODEL: 11
     },
 
-    typeToHuman: function(t){
-        switch(t){
+    typeToHuman: function (t) {
+        switch (t) {
             case this.type.UNDEFINED:
                 return "Undefined";
             case this.type.DIRECTORY:
@@ -78,12 +78,12 @@ module.exports = {
         }
     },
 
-    hasGeometry: function(entry) {
+    hasGeometry: function (entry) {
         if (!entry) return false;
         return !!entry.point_geom || !!entry.polygon_geom;
     },
-    
-    isDirectory: function(entry) {
+
+    isDirectory: function (entry) {
         if (!entry) return false;
         return entry.type === this.type.DIRECTORY ||
             entry.type === this.type.DRONEDB;
