@@ -22,6 +22,12 @@ class Entry {
         if (await this.dataset.registry.headRequest(eptUrl)) return eptUrl;
         else throw new Error(`${eptUrl} is not available`);
     }
+
+    async getNxz(){
+        const nxzUrl = this.buildUrl("nxs/model.nxz");
+        if (await this.dataset.registry.headRequest(nxzUrl)) return nxzUrl;
+        else throw new Error(`${nxzUrl} is not available`);
+    }
 }
 
 module.exports = {
