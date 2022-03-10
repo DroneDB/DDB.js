@@ -23,6 +23,13 @@ class Entry {
         else throw new Error(`${eptUrl} is not available`);
     }
 
+    async getCog(){
+        const cogUrl = this.buildUrl("cog/cog.tif");
+
+        if (await this.dataset.registry.headRequest(cogUrl)) return cogUrl;
+        else throw new Error(`${cogUrl} is not available`);
+    }
+
     async getNxz(){
         const nxzUrl = this.buildUrl("nxs/model.nxz");
         if (await this.dataset.registry.headRequest(nxzUrl)) return nxzUrl;
