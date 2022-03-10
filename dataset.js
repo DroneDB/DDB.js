@@ -133,4 +133,9 @@ module.exports = class Dataset {
             )
         });
     }
+
+    async isPublic(){
+        const info = await this.info();
+        return !!info[0].properties?.public;
+    }
 };
