@@ -17,4 +17,8 @@ module.exports = class Organization {
     Dataset(ds) {
         return new Dataset(this.registry, this.org, ds);
     }
+
+    // Add here code to add/rename/delete datasets
+
+
 };
