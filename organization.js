@@ -18,7 +18,15 @@ module.exports = class Organization {
         return new Dataset(this.registry, this.org, ds);
     }
 
-    // Add here code to add/rename/delete datasets
+    async createDataset(slug, name, isPublic = false) {
+        let body = {
+            slug: slug,
+            name: name,
+            isPublic: isPublic,
+        };
 
+        return await this.registry.postRequest(`/orgs/${this.org}/ds`, body);
+
+    }
 
 };

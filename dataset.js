@@ -74,6 +74,12 @@ module.exports = class Dataset {
         return this.registry.getRequest(`${this.baseApi}`);
     }
 
+    async update(name, isPublic) {
+        return this.registry.putRequest(`${this.baseApi}`, {
+            name, isPublic
+        });
+    }
+
     async list(path) {
         return this.registry.postRequest(`${this.baseApi}/list`, { path });
     }
