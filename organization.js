@@ -17,4 +17,16 @@ module.exports = class Organization {
     Dataset(ds) {
         return new Dataset(this.registry, this.org, ds);
     }
+
+    async createDataset(slug, name, isPublic = false) {
+        let body = {
+            slug: slug,
+            name: name,
+            isPublic: isPublic,
+        };
+
+        return await this.registry.postRequest(`/orgs/${this.org}/ds`, body);
+
+    }
+
 };

@@ -7,6 +7,7 @@ const fetch = require('./polyfills/node/fetch');
 const FormData = require('./polyfills/node/FormData');
 const Organization = require('./organization');
 const { DEFAULT_REGISTRY } = require('./constants');
+const Utils = require("./utils");
 
 let refreshTimers = {};
 
@@ -146,6 +147,12 @@ module.exports = class Registry {
     getUsername() {
         if (this.isLoggedIn()) {
             return localStorage.getItem(`${this.url}_username`);
+        }
+    }
+
+    isAdmin() {
+        if (this.isLoggedIn()) {
+            return Utils.parseJwt(this.getAuthToken()).admin == "True";
         }
     }
 
