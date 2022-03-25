@@ -63,6 +63,7 @@ module.exports = {
 
     // Credit https://stackoverflow.com/a/38552302
     parseJwt: function (token) {
+        if (!token) return {};
         var base64Url = token.split('.')[1];
         var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
         var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
