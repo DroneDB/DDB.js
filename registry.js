@@ -7,9 +7,21 @@ const fetch = require('./polyfills/node/fetch');
 const FormData = require('./polyfills/node/FormData');
 const Organization = require('./organization');
 const { DEFAULT_REGISTRY } = require('./constants');
-const Utils = require("./utils");
 
 let refreshTimers = {};
+
+
+// Credit https://stackoverflow.com/a/38552302
+function parseJwt(token) {
+    if (!token) return {};
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
+}
 
 module.exports = class Registry {
     constructor(url = "https://" + DEFAULT_REGISTRY) {
@@ -152,7 +164,7 @@ module.exports = class Registry {
 
     isAdmin() {
         if (this.isLoggedIn()) {
-            return Utils.parseJwt(this.getAuthToken()).admin == "True";
+            return parseJwt(this.getAuthToken()).admin == "True";
         }
     }
 
