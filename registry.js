@@ -169,7 +169,7 @@ module.exports = class Registry {
             if (!token)
                 return false;
 
-            const decoded = Utils.parseJwt(token); 
+            const decoded = parseJwt(token); 
             if (!decoded)
                 return false;
 
