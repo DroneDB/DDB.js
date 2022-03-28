@@ -14,6 +14,10 @@ module.exports = class Organization {
         return this.registry.getRequest(`/orgs/${this.org}/ds`);
     }
 
+    async info(){
+        return this.registry.getRequest(`/orgs/${this.org}/`);
+    }
+
     Dataset(ds) {
         return new Dataset(this.registry, this.org, ds);
     }
