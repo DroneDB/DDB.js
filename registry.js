@@ -164,7 +164,17 @@ module.exports = class Registry {
 
     isAdmin() {
         if (this.isLoggedIn()) {
-            return parseJwt(this.getAuthToken()).admin == "True";
+
+            const token = this.getAuthToken();
+            if (!token)
+                return false;
+
+            const decoded = Utils.parseJwt(token); 
+            if (!decoded)
+                return false;
+
+            return decoded.admin == "True";
+
         }
     }
 
