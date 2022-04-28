@@ -51,7 +51,9 @@ module.exports = {
         MARKDOWN: 8,
         VIDEO: 9,
         GEOVIDEO: 10,
-        MODEL: 11
+        MODEL: 11,
+        PANORAMA: 12,
+        GEOPANORAMA: 13
     },
 
     typeToHuman: function (t) {
@@ -80,6 +82,10 @@ module.exports = {
                 return "GeoVideo";
             case this.type.MODEL:
                 return "Model";
+            case this.type.PANORAMA:
+                return "Panorama";
+            case this.type.GEOPANORAMA:
+                return "GeoPanorama";
             default:
                 return "?";
         }

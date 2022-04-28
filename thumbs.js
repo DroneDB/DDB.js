@@ -11,7 +11,9 @@ module.exports = {
         return entryType === entry.type.GEOIMAGE ||
             entryType === entry.type.GEORASTER ||
             entryType === entry.type.IMAGE ||
-            entryType === entry.type.POINTCLOUD;
+            entryType === entry.type.POINTCLOUD ||
+            entryType === entry.type.PANORAMA ||
+            entryType === entry.type.GEOPANORAMA;
     },
 
     fetch: function (uri, thumbSize = 256) {
