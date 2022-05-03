@@ -85,6 +85,15 @@ const ddb = {
             });
         };
 
+        this.get = async function(ddbPath, path){
+            return new Promise((resolve, reject) => {
+                n.get(ddbPath, path, (err, result) => {
+                    if (err) reject(err);
+                    else resolve(result);
+                });
+            });
+        }
+
         this.remove = async function(ddbPath, paths, options = {}) {
             return new Promise((resolve, reject) => {
                 if (typeof paths === "string") paths = [paths];
