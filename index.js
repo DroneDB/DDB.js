@@ -78,9 +78,16 @@ const ddb = {
         
                 n.list(ddbPath, this._resolvePaths(ddbPath, paths), options, (err, result) => {
                     if (err) reject(err);
-                    else {
-                        resolve(result);
-                    }
+                    else resolve(result);
+                });
+            });
+        };
+
+        this.search = async function(ddbPath, query = ".") {
+            return new Promise((resolve, reject) => {
+                n.search(ddbPath, query, (err, result) => {
+                    if (err) reject(err);
+                    else resolve(result);
                 });
             });
         };
@@ -130,6 +137,62 @@ const ddb = {
                     else resolve(attrs);
                 });
             });
+        };
+
+        this.meta = {
+            add: async function(ddbPath, path, key, data){
+                return new Promise((resolve, reject) => {
+                    n.metaAdd(ddbPath, path, key, JSON.stringify(data), (err, meta) => {
+                        if (err) reject(err);
+                        else resolve(meta);
+                    });
+                });
+            },
+
+            set: async function(ddbPath, path, key, data){
+                return new Promise((resolve, reject) => {
+                    n.metaSet(ddbPath, path, key, JSON.stringify(data), (err, meta) => {
+                        if (err) reject(err);
+                        else resolve(meta);
+                    });
+                });
+            },
+
+            remove: async function(ddbPath, id){
+                return new Promise((resolve, reject) => {
+                    n.metaRemove(ddbPath, id, (err, meta) => {
+                        if (err) reject(err);
+                        else resolve(meta);
+                    });
+                });
+            },
+
+            get: async function(ddbPath, path, key){
+                return new Promise((resolve, reject) => {
+                    n.metaGet(ddbPath, path, key, (err, meta) => {
+                        if (err) reject(err);
+                        else resolve(meta);
+                    });
+                });
+            },
+
+            unset: async function(ddbPath, path, key){
+                return new Promise((resolve, reject) => {
+                    n.metaUnset(ddbPath, path, key, (err, meta) => {
+                        if (err) reject(err);
+                        else resolve(meta);
+                    });
+                });
+            },
+
+            list: async function(ddbPath, path){
+                return new Promise((resolve, reject) => {
+                    n.metaList(ddbPath, path, (err, meta) => {
+                        if (err) reject(err);
+                        else resolve(meta);
+                    });
+                });
+            }
         };
 
         // Guarantees that paths are expressed with
