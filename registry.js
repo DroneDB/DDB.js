@@ -10,6 +10,12 @@ const { DEFAULT_REGISTRY } = require('./constants');
 
 let refreshTimers = {};
 
+const throwError = (msg, status) => {
+    const e = new Error(msg);
+    e.status = status;
+    throw e;
+};
+
 module.exports = class Registry{
     constructor(url = "https://" + DEFAULT_REGISTRY){
         this.url = url;
@@ -175,21 +181,22 @@ module.exports = class Registry{
 
         const response = await fetch(`${this.url}${endpoint}`, options);
         if (response.status === 204) return true;
-        else if (response.status === 401) throw new Error("Unauthorized");
+        else if (response.status === 401) throwError("Unauthorized", 401);
+        else if (response.status === 404) throwError("Not found", 404);
         else{
             const contentType = response.headers.get("Content-Type");
             if (contentType && contentType.indexOf("application/json") !== -1){
                 let json = await response.json();
-                if (json.error) throw new Error(json.error);
+                if (json.error) throwError(json.error, response.status);
 
                 if (response.status === 200 || response.status === 201) return json;
-                else throw new Error(`Server responded with: ${JSON.stringify(json)}`);
+                else throwError(`Server responded with: ${JSON.stringify(json)}`, response.status);
             }else if (contentType && contentType.indexOf("text/") !== -1){
                 let text = await response.text();
                 if (response.status === 200 || response.status === 201) return text;
-                else throw new Error(`Server responded with: ${text}`);
+                else throwError(`Server responded with: ${text}`, response.status);
             }else{
-                throw new Error(`Server responded with: ${await response.text()}`);
+                throwError(`Server responded with: ${await response.text()}`, response.status);
             }
         }
     }

@@ -111,6 +111,15 @@ const ddb = {
             });
         };
 
+        this.move = async function(ddbPath, source, dest) {
+            return new Promise((resolve, reject) => {
+                n.move(ddbPath, source, dest, err => {
+                    if (err) reject(err);
+                    else resolve(true);
+                });
+            });
+        };
+
         this.share = async function(paths, tag, options = {}, progress = () => true){
             return new Promise((resolve, reject) => {
                 if (typeof paths === "string") paths = [paths];
@@ -141,6 +150,8 @@ const ddb = {
 
         this.meta = {
             add: async function(ddbPath, path, key, data){
+                if (path === undefined || path === null) path = "";
+                
                 return new Promise((resolve, reject) => {
                     n.metaAdd(ddbPath, path, key, JSON.stringify(data), (err, meta) => {
                         if (err) reject(err);
@@ -150,6 +161,8 @@ const ddb = {
             },
 
             set: async function(ddbPath, path, key, data){
+                if (path === undefined || path === null) path = "";
+
                 return new Promise((resolve, reject) => {
                     n.metaSet(ddbPath, path, key, JSON.stringify(data), (err, meta) => {
                         if (err) reject(err);
@@ -168,6 +181,8 @@ const ddb = {
             },
 
             get: async function(ddbPath, path, key){
+                if (path === undefined || path === null) path = "";
+
                 return new Promise((resolve, reject) => {
                     n.metaGet(ddbPath, path, key, (err, meta) => {
                         if (err) reject(err);
@@ -177,6 +192,8 @@ const ddb = {
             },
 
             unset: async function(ddbPath, path, key){
+                if (path === undefined || path === null) path = "";
+
                 return new Promise((resolve, reject) => {
                     n.metaUnset(ddbPath, path, key, (err, meta) => {
                         if (err) reject(err);
@@ -186,6 +203,8 @@ const ddb = {
             },
 
             list: async function(ddbPath, path){
+                if (path === undefined || path === null) path = "";
+
                 return new Promise((resolve, reject) => {
                     n.metaList(ddbPath, path, (err, meta) => {
                         if (err) reject(err);
