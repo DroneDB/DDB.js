@@ -4,17 +4,33 @@
 
 const Dataset = require('./dataset');
 
- module.exports = class Organization{
-    constructor(registry, org){
+module.exports = class Organization {
+    constructor(registry, org) {
         this.registry = registry;
         this.org = org;
     }
 
-    async datasets(){
+    async datasets() {
         return this.registry.getRequest(`/orgs/${this.org}/ds`);
     }
 
-    Dataset(ds){
+    async info(){
+        return this.registry.getRequest(`/orgs/${this.org}/`);
+    }
+
+    Dataset(ds) {
         return new Dataset(this.registry, this.org, ds);
     }
- };
+
+    async createDataset(slug, name, isPublic = false) {
+        let body = {
+            slug: slug,
+            name: name,
+            isPublic: isPublic,
+        };
+
+        return await this.registry.postRequest(`/orgs/${this.org}/ds`, body);
+
+    }
+
+};

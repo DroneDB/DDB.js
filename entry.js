@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-class Entry{
-    constructor(dataset, entry){
+class Entry {
+    constructor(dataset, entry) {
         this.dataset = dataset;
         Object.assign(this, entry);
 
@@ -11,14 +11,29 @@ class Entry{
         if (!this.hash) throw new Error("Not a valid file entry object");
     }
 
-    buildUrl(path){
+    buildUrl(path) {
         let url = `${this.dataset.baseApi}/build/${this.hash}/${path}`;
         return url;
     }
 
-    async getEpt(){
-        // TODO: head request, throw exception if file does not exist?
-        return this.buildUrl("ept/ept.json");
+    async getEpt() {
+        const eptUrl = this.buildUrl("ept/ept.json");
+
+        if (await this.dataset.registry.headRequest(eptUrl)) return eptUrl;
+        else throw new Error(`${eptUrl} is not available`);
+    }
+
+    async getCog(){
+        const cogUrl = this.buildUrl("cog/cog.tif");
+
+        if (await this.dataset.registry.headRequest(cogUrl)) return cogUrl;
+        else throw new Error(`${cogUrl} is not available`);
+    }
+
+    async getNxz(){
+        const nxzUrl = this.buildUrl("nxs/model.nxz");
+        if (await this.dataset.registry.headRequest(nxzUrl)) return nxzUrl;
+        else throw new Error(`${nxzUrl} is not available`);
     }
 }
 
@@ -35,11 +50,14 @@ module.exports = {
         DRONEDB: 7,
         MARKDOWN: 8,
         VIDEO: 9,
-        GEOVIDEO: 10
+        GEOVIDEO: 10,
+        MODEL: 11,
+        PANORAMA: 12,
+        GEOPANORAMA: 13
     },
 
-    typeToHuman: function(t){
-        switch(t){
+    typeToHuman: function (t) {
+        switch (t) {
             case this.type.UNDEFINED:
                 return "Undefined";
             case this.type.DIRECTORY:
@@ -62,17 +80,23 @@ module.exports = {
                 return "Video";
             case this.type.GEOVIDEO:
                 return "GeoVideo";
+            case this.type.MODEL:
+                return "Model";
+            case this.type.PANORAMA:
+                return "Panorama";
+            case this.type.GEOPANORAMA:
+                return "GeoPanorama";
             default:
                 return "?";
         }
     },
 
-    hasGeometry: function(entry) {
+    hasGeometry: function (entry) {
         if (!entry) return false;
         return !!entry.point_geom || !!entry.polygon_geom;
     },
-    
-    isDirectory: function(entry) {
+
+    isDirectory: function (entry) {
         if (!entry) return false;
         return entry.type === this.type.DIRECTORY ||
             entry.type === this.type.DRONEDB;

@@ -6,19 +6,19 @@ const Registry = require('./registry');
 
 // Retrieves entry information from 
 // local or remote sources
-async function fetchEntries(uri, options = {}){
-    if (isDDBUri(uri)){
+async function fetchEntries(uri, options = {}) {
+    if (isDDBUri(uri)) {
         const { registryUrl, org, ds, path } = parseUri(uri);
         const dataset = new Registry(registryUrl).Organization(org).Dataset(ds);
         return dataset.list(path);
-    }else if (uri.startsWith("file://")){
+    } else if (uri.startsWith("file://")) {
         // Local file, use ddb.info (if available)
-        if (this.info){
+        if (this.info) {
             return this.info(uri.substring("file://".length), options);
-        }else{
+        } else {
             throw new Error("ddb.info is only available in NodeJS. Did you call registerNativeBindings?");
         }
-    }else{
+    } else {
         throw new Error(`Unsupported URI: ${uri}`);
     }
 };
