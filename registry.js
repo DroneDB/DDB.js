@@ -99,19 +99,18 @@ module.exports = class Registry {
 
     async refreshToken() {
         if (this.isLoggedIn()) {
-            const res = await fetch(`${this.url}/users/authenticate/refresh`, {
+            const f = await fetch(`${this.url}/users/authenticate/refresh`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${this.getAuthToken()}`
                 }
-            }).then(r => r.json());
+            });
+            const res = await f.json();
 
             if (res.token) {
                 this.setCredentials(this.getUsername(), res.token, res.expires);
             }else{
-                const e = new Error(res.error || `Cannot refresh token: ${JSON.stringify(res)}`);
-                e.status = res.status;
-                throw e;
+                throwError(res.error || `Cannot refresh token: ${JSON.stringify(res)}`, f.status);
             }
         } else {
             throw new Error("logged out");
