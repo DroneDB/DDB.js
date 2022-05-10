@@ -16,167 +16,263 @@ const throwError = (msg, status) => {
     throw e;
 };
 
-module.exports = class Registry{
-    constructor(url = "https://" + DEFAULT_REGISTRY){
+// Credit https://stackoverflow.com/a/38552302
+function parseJwt(token) {
+    if (!token) return {};
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
+}
+
+module.exports = class Registry {
+    constructor(url = "https://" + DEFAULT_REGISTRY) {
         this.url = url;
         this.eventListeners = {};
     }
-    
-    get remote(){
+
+    get remote() {
         return this.url.replace(/^https?:\/\//, "");
     }
 
-    get tagUrl(){
+    get tagUrl() {
         // Drop the https prefix if it's secure (it's the default)
         return this.secure ? this.remote : this.url;
     }
 
-    get secure(){
+    get secure() {
         return this.url.startsWith("https://");
     }
 
     // Login 
-    async login(username, password, xAuthToken = null){
+    async login(username, password, xAuthToken = null) {
         const formData = new FormData();
         if (username) formData.append("username", username);
         if (password) formData.append("password", password);
         if (xAuthToken) formData.append("token", xAuthToken);
 
-        try{
+        try {
             const res = await fetch(`${this.url}/users/authenticate`, {
                 method: 'POST',
                 body: formData
             }).then(r => r.json());
-            
-            if (res.token){
+
+            if (res.token) {
                 this.setCredentials(res.username, res.token, res.expires);
                 this.setAutoRefreshToken();
                 this.emit("login", res.username);
 
                 return res;
-            }else{
+            } else {
                 throw new Error(res.error || `Cannot login: ${JSON.stringify(res)}`);
             }
-        }catch(e){
+        } catch (e) {
             throw new Error(`Cannot login: ${e.message}`);
         }
     }
 
-    async refreshToken(){
-        if (this.isLoggedIn()){
+    async getStorageInfo() {
+        if (this.isLoggedIn()) {
+            const res = await this.getRequest(`/users/storage`);
+
+            if (res.total == null) {
+                return {
+                    total: null,
+                    used: res.used
+                };
+            } else {
+                return {
+                    total: res.total,
+                    used: res.used,
+                    free: res.total - res.used,
+                    usedPercentage: res.used / res.total
+                };
+            }
+
+        } else {
+            throw new Error("not logged in");
+        }
+    }
+
+    async refreshToken() {
+        if (this.isLoggedIn()) {
             const res = await fetch(`${this.url}/users/authenticate/refresh`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${this.getAuthToken()}`
                 }
             }).then(r => r.json());
-            
-            if (res.token){
+
+            if (res.token) {
                 this.setCredentials(this.getUsername(), res.token, res.expires);
             }else{
                 const e = new Error(res.error || `Cannot refresh token: ${JSON.stringify(res)}`);
                 e.status = res.status;
                 throw e;
             }
-        }else{
+        } else {
             throw new Error("logged out");
         }
     }
 
-    setAutoRefreshToken(seconds = 3600){
-        if (refreshTimers[this.url]){
+    setAutoRefreshToken(seconds = 3600) {
+        if (refreshTimers[this.url]) {
             clearTimeout(refreshTimers[this.url]);
             delete refreshTimers[this.url];
         }
 
         setTimeout(async () => {
-            try{
+            try {
                 await this.refreshToken();
                 this.setAutoRefreshToken(seconds);
-            }catch(e){
+            } catch (e) {
                 console.error(e);
-                
+
                 // Try again later, unless we're logged out
-                if (e.message !== "logged out"){
+                if (e.message !== "logged out") {
                     this.setAutoRefreshToken(seconds);
                 }
             }
         }, seconds * 1000);
     }
 
-    logout(){
+    logout() {
         this.clearCredentials();
         this.emit("logout");
     }
 
-    setCredentials(username, token, expires){
+    setCredentials(username, token, expires) {
         localStorage.setItem(`${this.url}_username`, username);
         localStorage.setItem(`${this.url}_jwt_token`, token);
         localStorage.setItem(`${this.url}_jwt_token_expires`, expires);
 
         // Set cookie if the URL matches the current window
-        if (typeof window !== "undefined"){
-            if (window.location.origin === this.url){
-                document.cookie = `jwtToken=${token};${expires*1000};path=/`;
+        if (typeof window !== "undefined") {
+            if (window.location.origin === this.url) {
+                document.cookie = `jwtToken=${token};${expires * 1000};path=/`;
             }
         }
     }
 
-    getAuthToken(){
-        if (this.getAuthTokenExpiration() > new Date()){
+    getAuthToken() {
+        if (this.getAuthTokenExpiration() > new Date()) {
             return localStorage.getItem(`${this.url}_jwt_token`);
         }
     }
 
-    getUsername(){
-        if (this.isLoggedIn()){
+    getUsername() {
+        if (this.isLoggedIn()) {
             return localStorage.getItem(`${this.url}_username`);
         }
     }
 
-    getAuthTokenExpiration(){
+    isAdmin() {
+        if (this.isLoggedIn()) {
+
+            const token = this.getAuthToken();
+            if (!token)
+                return false;
+
+            const decoded = parseJwt(token); 
+            if (!decoded)
+                return false;
+
+            return decoded.admin == "True";
+
+        }
+    }
+
+    getAuthTokenExpiration() {
         const expires = localStorage.getItem(`${this.url}_jwt_token_expires`);
-        if (expires){
+        if (expires) {
             return new Date(expires * 1000);
         }
     }
 
-    clearCredentials(){
+    async createOrganization(slug, name, description, isPublic) {
+            
+        if (!this.isLoggedIn())
+            throw new Error("not logged in");
+
+        return await this.postRequest(`/orgs`, {
+            slug,
+            name,
+            description,
+            isPublic            
+        });
+    }
+
+    async updateOrganization(slug, name, description, isPublic) {
+        if (!this.isLoggedIn())
+            throw new Error("not logged in");
+
+        return await this.putRequest(`/orgs/${slug}`, {
+            slug: slug,
+            name,
+            description,
+            isPublic
+        });
+    }
+
+    async getOrganizations() {
+
+        if (!this.isLoggedIn())
+            throw new Error("not logged in");
+
+        const res = await this.getRequest(`/orgs`);
+        return res.map(org => new Organization(this, org));
+
+    }
+
+    async deleteOrganization(orgSlug) {
+
+        if (!this.isLoggedIn())
+            throw new Error("not logged in");
+
+        return await this.deleteRequest(`/orgs/${orgSlug}`);
+    }
+
+    clearCredentials() {
         localStorage.removeItem(`${this.url}_jwt_token`);
         localStorage.removeItem(`${this.url}_jwt_token_expires`);
         localStorage.removeItem(`${this.url}_username`);
 
-         // Clear cookie if the needed
-         if (typeof window !== "undefined"){
-            if (window.location.origin === this.url){
+        // Clear cookie if the needed
+        if (typeof window !== "undefined") {
+            if (window.location.origin === this.url) {
                 document.cookie = `jwtToken=;-1;path=/`;
             }
         }
     }
 
-    isLoggedIn(){
+    isLoggedIn() {
         const loggedIn = this.getAuthToken() !== null && this.getAuthTokenExpiration() > new Date();
         if (!loggedIn) this.clearCredentials();
         return loggedIn;
     }
 
-    async makeRequest(endpoint, method="GET", body = null){
+    async makeRequest(endpoint, method = "GET", body = null) {
         const headers = {};
         const authToken = this.getAuthToken();
+
         if (authToken) headers.Authorization = `Bearer ${authToken}`;
-        const options = { 
+
+        const options = {
             method,
             headers
         };
 
-        if (body){
+        if (body) {
             const formData = new FormData();
-            for(let k in body){
-                if (Array.isArray(body[k])){
+            for (let k in body) {
+                if (Array.isArray(body[k]))
                     body[k].forEach(v => formData.append(k, v));
-                }else{
+                else
                     formData.append(k, body[k]);
-                }
+
             }
             options.body = formData;
         }
@@ -203,40 +299,44 @@ module.exports = class Registry{
         }
     }
 
-    async getRequest(endpoint){
+    async getRequest(endpoint) {
         return this.makeRequest(endpoint, "GET");
     }
 
-    async postRequest(endpoint, body = {}){
+    async postRequest(endpoint, body = {}) {
         return this.makeRequest(endpoint, "POST", body);
     }
 
-    async putRequest(endpoint, body = {}){
+    async putRequest(endpoint, body = {}) {
         return this.makeRequest(endpoint, "PUT", body);
     }
 
-    async deleteRequest(endpoint, body = {}){
+    async deleteRequest(endpoint, body = {}) {
         return this.makeRequest(endpoint, "DELETE", body);
     }
 
-    Organization(name){
+    async headRequest(endpoint) {
+        return this.makeRequest(endpoint, "HEAD");
+    }
+
+    Organization(name) {
         return new Organization(this, name);
     }
 
-    addEventListener(event, cb){
+    addEventListener(event, cb) {
         this.eventListeners[event] = this.eventListeners[event] || [];
-        if (!this.eventListeners[event].find(e => e === cb)){
+        if (!this.eventListeners[event].find(e => e === cb)) {
             this.eventListeners[event].push(cb);
         }
     }
 
-    removeEventListener(event, cb){
+    removeEventListener(event, cb) {
         this.eventListeners[event] = this.eventListeners[event] || [];
         this.eventListeners[event] = this.eventListeners[event].filter(e => e !== cb);
     }
 
-    emit(event, ...params){
-        if (this.eventListeners[event]){
+    emit(event, ...params) {
+        if (this.eventListeners[event]) {
             this.eventListeners[event].forEach(listener => {
                 listener(...params);
             });

@@ -7,6 +7,7 @@ const Registry = require('./registry');
 const entry = require('./entry');
 const thumbs = require('./thumbs');
 const fetchEntries = require('./fetchEntries');
+const searchEntries = require('./searchEntries');
 const utils = require('./utils');
 const pathutils = require('./pathutils');
 
@@ -14,15 +15,16 @@ const ddb = {
     Tag, Dataset, Registry,
     entry, utils, pathutils,
     fetchEntries,
+    searchEntries,
     thumbs,
 
     tile: {},
 
-    registerNativeBindings: function(n){
+    registerNativeBindings: function (n) {
         this.getVersion = n.getVersion;
         this.getDefaultRegistry = n.getDefaultRegistry;
 
-        this.thumbs.getFromUserCache = async function(imagePath, options = {}) {
+        this.thumbs.getFromUserCache = async function (imagePath, options = {}) {
             return new Promise((resolve, reject) => {
                 n._thumbs_getFromUserCache(imagePath, options, (err, result) => {
                     if (err) reject(err);
@@ -31,7 +33,7 @@ const ddb = {
             });
         };
 
-        this.tile.getFromUserCache = async function(geotiffPath, tz, tx, ty, options = {}) {
+        this.tile.getFromUserCache = async function (geotiffPath, tz, tx, ty, options = {}) {
             return new Promise((resolve, reject) => {
                 n._tile_getFromUserCache(geotiffPath, tz, tx, ty, options, (err, result) => {
                     if (err) reject(err);
@@ -40,10 +42,10 @@ const ddb = {
             });
         };
 
-        this.info = async function(paths, options = {}) {
+        this.info = async function (paths, options = {}) {
             return new Promise((resolve, reject) => {
                 if (typeof paths === "string") paths = [paths];
-        
+
                 n.info(paths, options, (err, result) => {
                     if (err) reject(err);
                     else resolve(result);
@@ -51,7 +53,7 @@ const ddb = {
             });
         };
 
-        this.init = async function(directory) {
+        this.init = async function (directory) {
             return new Promise((resolve, reject) => {
                 n.init(directory, (err, result) => {
                     if (err) reject(err);
@@ -60,7 +62,7 @@ const ddb = {
             });
         };
 
-        this.add = async function(ddbPath, paths, options = {}) {
+        this.add = async function (ddbPath, paths, options = {}) {
             return new Promise((resolve, reject) => {
                 if (typeof paths === "string") paths = [paths];
 
@@ -71,11 +73,11 @@ const ddb = {
             });
         };
 
-        this.list = async function(ddbPath, paths = ".", options = {}) {
+        this.list = async function (ddbPath, paths = ".", options = {}) {
             return new Promise((resolve, reject) => {
                 const isSingle = typeof paths === "string";
                 if (isSingle) paths = [paths];
-        
+
                 n.list(ddbPath, this._resolvePaths(ddbPath, paths), options, (err, result) => {
                     if (err) reject(err);
                     else resolve(result);
@@ -139,7 +141,7 @@ const ddb = {
             });
         };
 
-        this.login = async function(username, password, server = ""){
+        this.login = async function (username, password, server = "") {
             return new Promise((resolve, reject) => {
                 n.login(username, password, server, (err, token) => {
                     if (err) reject(err);
@@ -148,7 +150,7 @@ const ddb = {
             });
         };
 
-        this.chattr = async function(ddbPath, attrs = {}){
+        this.chattr = async function (ddbPath, attrs = {}) {
             return new Promise((resolve, reject) => {
                 n.chattr(ddbPath, attrs, (err, attrs) => {
                     if (err) reject(err);
@@ -225,9 +227,9 @@ const ddb = {
 
         // Guarantees that paths are expressed with
         // a ddbPath root or are absolute paths
-        this._resolvePaths = function(ddbPath, paths){
+        this._resolvePaths = function (ddbPath, paths) {
             const path = require('path');
-            
+
             return paths.map(p => {
                 if (path.isAbsolute(p)) return p;
 
@@ -235,7 +237,7 @@ const ddb = {
 
                 // Is it relative? Good
                 if (relative && !relative.startsWith("..") && !path.isAbsolute(relative)) return p;
-                
+
                 // Combine
                 else return path.join(ddbPath, p);
             });
