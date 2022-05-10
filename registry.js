@@ -74,7 +74,9 @@ module.exports = class Registry{
             if (res.token){
                 this.setCredentials(this.getUsername(), res.token, res.expires);
             }else{
-                throw new Error(res.error || `Cannot refresh token: ${JSON.stringify(res)}`);
+                const e = new Error(res.error || `Cannot refresh token: ${JSON.stringify(res)}`);
+                e.status = res.status;
+                throw e;
             }
         }else{
             throw new Error("logged out");

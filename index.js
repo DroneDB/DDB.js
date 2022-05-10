@@ -99,7 +99,16 @@ const ddb = {
                     else resolve(result);
                 });
             });
-        }
+        };
+
+        this.getStamp = async function(ddbPath) {
+            return new Promise((resolve, reject) => {
+                n.getStamp(ddbPath, (err, stamp) => {
+                    if (err) reject(err);
+                    else resolve(stamp);
+                });
+            });
+        };
 
         this.remove = async function(ddbPath, paths, options = {}) {
             return new Promise((resolve, reject) => {
