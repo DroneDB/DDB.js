@@ -87,6 +87,15 @@ const ddb = {
             });
         };
 
+        this.build = async function (ddbPath, options = {}) {
+            return new Promise((resolve, reject) => {
+                n.build(ddbPath, options, (err, result) => {
+                    if (err) reject(err);
+                    else resolve(result);
+                });
+            });
+        };
+
         this.search = async function(ddbPath, query = ".") {
             return new Promise((resolve, reject) => {
                 n.search(ddbPath, query, (err, result) => {
