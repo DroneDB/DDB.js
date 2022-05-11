@@ -10,9 +10,11 @@ const fetchEntries = require('./fetchEntries');
 const searchEntries = require('./searchEntries');
 const utils = require('./utils');
 const pathutils = require('./pathutils');
+const MergeStrategy = require('./mergeStrategy');
 
 const ddb = {
     Tag, Dataset, Registry,
+    MergeStrategy,
     entry, utils, pathutils,
     fetchEntries,
     searchEntries,
@@ -159,6 +161,33 @@ const ddb = {
             });
         };
 
+        this.delta = async function (sourceStamp, targetStamp) {
+            return new Promise((resolve, reject) => {
+                n.delta(JSON.stringify(sourceStamp), JSON.stringify(targetStamp), (err, delta) => {
+                    if (err) reject(err);
+                    else resolve(delta);
+                });
+            });
+        };
+
+        this.computeDeltaLocals = async function (ddbPath, delta, hlDestFolder = "") {
+            return new Promise((resolve, reject) => {
+                n.computeDeltaLocals(ddbPath, JSON.stringify(delta), hlDestFolder, (err, locals) => {
+                    if (err) reject(err);
+                    else resolve(locals);
+                });
+            });
+        };
+
+        this.applyDelta = async function(delta, sourcePath, ddbPath, sourceMetaDump = [], options = {mergeStrategy: MergeStrategy.KeepTheirs}){
+            return new Promise((resolve, reject) => {
+                n.applyDelta(JSON.stringify(delta), sourcePath, ddbPath, JSON.stringify(sourceMetaDump), options, (err, conflicts) => {
+                    if (err) reject(err);
+                    else resolve(conflicts);
+                });
+            });
+        };
+
         this.meta = {
             add: async function(ddbPath, path, key, data){
                 if (path === undefined || path === null) path = "";
@@ -222,7 +251,18 @@ const ddb = {
                         else resolve(meta);
                     });
                 });
-            }
+            },
+
+            dump: async function(ddbPath, ids = ""){
+                if (!ids) ids = "[]";
+
+                return new Promise((resolve, reject) => {
+                    n.metaDump(ddbPath, ids, (err, meta) => {
+                        if (err) reject(err);
+                        else resolve(meta);
+                    });
+                });
+            },
         };
 
         // Guarantees that paths are expressed with
