@@ -87,9 +87,9 @@ const ddb = {
             });
         };
 
-        this.build = async function (ddbPath, options = {}) {
+        this.build = async function (ddbPath, options = {}, progress = () => true) {
             return new Promise((resolve, reject) => {
-                n.build(ddbPath, options, (err, result) => {
+                n.build(ddbPath, options, progress, (err, result) => {
                     if (err) reject(err);
                     else resolve(result);
                 });
