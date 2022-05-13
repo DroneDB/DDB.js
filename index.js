@@ -64,11 +64,11 @@ const ddb = {
             });
         };
 
-        this.add = async function (ddbPath, paths, options = {}) {
+        this.add = async function (ddbPath, paths, options = {}, progress = () => true) {
             return new Promise((resolve, reject) => {
                 if (typeof paths === "string") paths = [paths];
 
-                n.add(ddbPath, this._resolvePaths(ddbPath, paths), options, (err, entries) => {
+                n.add(ddbPath, this._resolvePaths(ddbPath, paths), options, progress, (err, entries) => {
                     if (err) reject(err);
                     else return resolve(entries);
                 });
@@ -87,9 +87,9 @@ const ddb = {
             });
         };
 
-        this.build = async function (ddbPath, options = {}) {
+        this.build = async function (ddbPath, options = {}, progress = () => true) {
             return new Promise((resolve, reject) => {
-                n.build(ddbPath, options, (err, result) => {
+                n.build(ddbPath, options, progress, (err, result) => {
                     if (err) reject(err);
                     else resolve(result);
                 });
