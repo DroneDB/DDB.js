@@ -280,6 +280,7 @@ module.exports = class Registry {
         if (response.status === 204) return true;
         else if (response.status === 401) throwError("Unauthorized", 401);
         else if (response.status === 404) throwError("Not found", 404);
+        else if (method === "HEAD" && response.status === 200) return true;
         else{
             const contentType = response.headers.get("Content-Type");
             if (contentType && contentType.indexOf("application/json") !== -1){
@@ -292,8 +293,6 @@ module.exports = class Registry {
                 let text = await response.text();
                 if (response.status === 200 || response.status === 201) return text;
                 else throwError(`Server responded with: ${text}`, response.status);
-            }else if (method === "HEAD" && response.status === 200){
-                return true;
             }else{
                 throwError(`Server responded with: ${await response.text()}`, response.status);
             }
