@@ -3,6 +3,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 const { DEFAULT_REGISTRY } = require('./constants');
+const TagComponentInvalidChars = /[^A-Za-z0-9\._-]/g;
+const TagComponentValid = /^[a-zA-Z0-9_][a-zA-Z0-9-_\.]{0,127}$/;
 
 module.exports = class Tag {
 
@@ -15,7 +17,12 @@ module.exports = class Tag {
     static validComponent(tagComponent) {
         if (!tagComponent) return false;
 
-        return /^[a-zA-Z0-9_][a-zA-Z0-9\.-_]{0,127}$/.test(tagComponent);
+        return TagComponentValid.test(tagComponent);
+    }
+
+    static filterComponentChars(tagComponent){
+        if (typeof tagComponent !== "string") return "";
+        return tagComponent.replace(TagComponentInvalidChars, "");
     }
 
     constructor(tag) {
