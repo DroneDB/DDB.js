@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-const localStorage = require('./polyfills/node/localStorage');
-const fetch = require('./polyfills/node/fetch');
-const FormData = require('./polyfills/node/FormData');
 const Organization = require('./organization');
 const { DEFAULT_REGISTRY } = require('./constants');
 
