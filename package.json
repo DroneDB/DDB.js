@@ -19,9 +19,5 @@
     "url": "https://github.com/DroneDB/DDB.js/issues"
   },
   "homepage": "https://github.com/DroneDB/DDB.js#readme",
-  "dependencies": {
-    "formdata-node": "^2.4.0",
-    "node-fetch": "^2.6.1",
-    "node-localstorage": "^2.1.6"
-  }
+  "dependencies": { }
 }
