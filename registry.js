@@ -74,7 +74,7 @@ module.exports = class Registry {
         }
     }
 
-    async getStorageInfo() {
+    async storageInfo() {
         if (this.isLoggedIn()) {
             const res = await this.getRequest(`/users/storage`);
 
@@ -94,6 +94,22 @@ module.exports = class Registry {
 
         } else {
             throw new Error("not logged in");
+        }
+    }
+
+    async users(){
+        return await this.getRequest(`/users`);
+    }
+
+    async changePwd(oldPassword, newPassword){
+        const res = await this.postRequest('/users/changePwd', {
+            oldPassword, newPassword
+        });
+        if (res.token) {
+            this.setCredentials(this.getUsername(), res.token, res.expires);
+        }else{
+            console.log(res);
+            throwError(res.error || `Cannot change password: ${JSON.stringify(res)}`, res.status);
         }
     }
 
@@ -179,8 +195,7 @@ module.exports = class Registry {
             if (!decoded)
                 return false;
 
-            return decoded.admin == "True";
-
+            return decoded.admin;
         }
     }
 
