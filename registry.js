@@ -98,6 +98,20 @@ module.exports = class Registry {
         return await this.getRequest(`/users`);
     }
 
+    async userRoles(){
+        return await this.getRequest(`/users/roles`);
+    }
+
+    async addUser(username, password, roles = []){
+        return await this.postRequest('/users', {
+            username, password, roles: JSON.stringify(roles)
+        });
+    }
+
+    async deleteUser(username){
+        return await this.deleteRequest(`/users/${encodeURIComponent(username)}`);
+    }
+
     async changePwd(oldPassword, newPassword){
         const res = await this.postRequest('/users/changePwd', {
             oldPassword, newPassword
@@ -105,7 +119,6 @@ module.exports = class Registry {
         if (res.token) {
             this.setCredentials(this.getUsername(), res.token, res.expires);
         }else{
-            console.log(res);
             throwError(res.error || `Cannot change password: ${JSON.stringify(res)}`, res.status);
         }
     }
