@@ -26,6 +26,8 @@ module.exports = {
     },
 
     getTree: function (path) {
+        path = path.replace("file://", "");
+
         var folders = [];
         var f = path;
         do {
