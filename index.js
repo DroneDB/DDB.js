@@ -296,12 +296,25 @@ const ddb = {
                 if (!opts.winId && this._winId) opts.winId = this._winId;
     
                 return new Promise((resolve, reject) => {
+                    // Black magic: allow progress windows to appear in the foreground!
+                    n._shell_AltPress();
+                    setTimeout(() => {
+                        n._shell_AltRelease();
+                    }, 3000);
+
+                    // Actual function call
                     n._shell_SHFileOperation(operation, from, to, opts, (err, result) => {
                         if (err) reject(err);
                         else if (!result) reject(`Cannot execute ${operation}`);
                         else resolve(true);
                     });
                 });
+            },
+
+            _shTest: function(){
+                setTimeout(() => {
+                    n._shell_SurrenderForeground();
+                }, 2000);
             },
 
             _setWinId: function(winId){
