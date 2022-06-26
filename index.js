@@ -274,6 +274,41 @@ const ddb = {
             },
         };
 
+        this.shell = {
+            copy: async function(from, to, opts = {}){
+                return this._shFileOperation("copy", from, to, opts);
+            },
+
+            move: async function(from, to, opts = {}){
+                return this._shFileOperation("move", from, to, opts);
+            },
+
+            delete: async function(from, to, opts = {}){
+                return this._shFileOperation("delete", from, to, opts);
+            },
+
+            rename: async function(from, to, opts = {}){
+                return this._shFileOperation("rename", from, to, opts);
+            },
+
+            _shFileOperation: async function(operation, from, to, opts = {}){
+                if (typeof from === 'string') from = [from];
+                if (!opts.winId && this._winId) opts.winId = this._winId;
+    
+                return new Promise((resolve, reject) => {
+                    n._shell_SHFileOperation(operation, from, to, opts, (err, result) => {
+                        if (err) reject(err);
+                        else if (!result) reject(`Cannot execute ${operation}`);
+                        else resolve(true);
+                    });
+                });
+            },
+
+            _setWinId: function(winId){
+                this._winId = winId; // Used by Windows to show shell progress dialogs
+            }
+        };
+
         // Guarantees that paths are expressed with
         // a ddbPath root or are absolute paths
         this._resolvePaths = function (ddbPath, paths) {
