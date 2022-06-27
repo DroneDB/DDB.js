@@ -36,5 +36,18 @@ module.exports = {
         } while (f != null);
 
         return folders.reverse();
+    },
+
+    localPathFromUri: function(uri){
+        if (!uri.startsWith("file://")) throw new Error("Not a local URI");
+
+        let p = uri.replace("file://", "");
+        
+        return this.removeTrailingSlash(p);
+    },
+
+    removeTrailingSlash: function(path){
+        if (path.length > 1 && path[path.length - 1] === '/') path = path.substring(0, path.length - 1);
+        return path;
     }
 }

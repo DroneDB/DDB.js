@@ -283,8 +283,8 @@ const ddb = {
                 return this._shFileOperation("move", from, to, opts);
             },
 
-            delete: async function(from, to, opts = {}){
-                return this._shFileOperation("delete", from, to, opts);
+            delete: async function(files, opts = {}){
+                return this._shFileOperation("delete", files, "", opts);
             },
 
             rename: async function(from, to, opts = {}){
