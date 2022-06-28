@@ -31,7 +31,7 @@ module.exports = {
         var folders = [];
         var f = path;
         do {
-            folders.push(f);
+            folders.push(this.removeTrailingSlash(f));
             f = this.getParentFolder(f);
         } while (f != null);
 
