@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 const { Entry } = require('./entry');
+const Visibility = require('./visibility');
 
 module.exports = class Dataset {
     constructor(registry, org, ds) {
@@ -74,9 +75,9 @@ module.exports = class Dataset {
         return this.registry.getRequest(`${this.baseApi}`);
     }
 
-    async update(name, isPublic) {
+    async update(name, visibility) {
         return this.registry.putRequest(`${this.baseApi}`, {
-            name, isPublic
+            name, visibility
         });
     }
 
@@ -132,16 +133,17 @@ module.exports = class Dataset {
         });
     }
 
-    async setPublic(flag) {
-        return this.registry.postRequest(`${this.baseApi}/chattr`, {
-            attrs: JSON.stringify(
-                { public: flag }
-            )
-        });
+    async setVisibility(visibility) {
+        return this.metaSet("visibility", visibility);
     }
 
     async isPublic(){
         const info = await this.info();
-        return !!info[0].properties?.public;
+        return info[0].properties?.meta?.visibility?.data === Visibility.PUBLIC;
+    }
+
+    async isUnlisted(){
+        const info = await this.info();
+        return info[0].properties?.meta?.visibility?.data === Visibility.UNLISTED;
     }
 };

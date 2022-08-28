@@ -11,10 +11,11 @@ const searchEntries = require('./searchEntries');
 const utils = require('./utils');
 const pathutils = require('./pathutils');
 const MergeStrategy = require('./mergeStrategy');
+const Visibility = require('./visibility');
 
 const ddb = {
     Tag, Dataset, Registry,
-    MergeStrategy,
+    MergeStrategy, Visibility,
     entry, utils, pathutils,
     fetchEntries,
     searchEntries,

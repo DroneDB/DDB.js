@@ -3,6 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 const Dataset = require('./dataset');
+const Visibility = require('./visibility');
 
 module.exports = class Organization {
     constructor(registry, org) {
@@ -22,15 +23,10 @@ module.exports = class Organization {
         return new Dataset(this.registry, this.org, ds);
     }
 
-    async createDataset(slug, name, isPublic = false) {
-        let body = {
-            slug: slug,
-            name: name,
-            isPublic: isPublic,
-        };
-
-        return await this.registry.postRequest(`/orgs/${this.org}/ds`, body);
-
+    async createDataset(slug, name, visibility = Visibility.PRIVATE) {
+        return await this.registry.postRequest(`/orgs/${this.org}/ds`, {
+            slug, name, visibility
+        });
     }
 
 };

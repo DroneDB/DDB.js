@@ -55,11 +55,6 @@ module.exports = {
         PANORAMA: 12,
         GEOPANORAMA: 13
     },
-    visibility: {
-        PRIVATE: 0,
-        UNLISTED: 1,
-        PUBLIC: 2
-    },
 
     typeToHuman: function (t) {
         switch (t) {
