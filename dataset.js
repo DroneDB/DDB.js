@@ -134,16 +134,14 @@ module.exports = class Dataset {
     }
 
     async setVisibility(visibility) {
-        return this.metaSet("visibility", visibility);
+        const v = parseInt(visibility);
+        if (isNaN(v)) throw Error("Invalid visibility value");
+
+        return this.metaSet("visibility", v);
     }
 
-    async isPublic(){
+    async getVisibility(){
         const info = await this.info();
-        return info[0].properties?.meta?.visibility?.data === Visibility.PUBLIC;
-    }
-
-    async isUnlisted(){
-        const info = await this.info();
-        return info[0].properties?.meta?.visibility?.data === Visibility.UNLISTED;
+        return info[0].properties?.meta?.visibility?.data;    
     }
 };
