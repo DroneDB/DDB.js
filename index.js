@@ -162,6 +162,7 @@ const ddb = {
         };
 
         this.chattr = async function (ddbPath, attrs = {}) {
+            console.warn("DEPRECATED call to chattr (please use meta.set instead)")
             return new Promise((resolve, reject) => {
                 n.chattr(ddbPath, attrs, (err, attrs) => {
                     if (err) reject(err);
