@@ -324,6 +324,15 @@ const ddb = {
             }
         };
 
+        this.stac = async function(ddbPath, opts = {}){
+            return new Promise((resolve, reject) => {
+                n.stac(ddbPath, opts, (err, stac) => {
+                    if (err) reject(err);
+                    else resolve(stac);
+                });
+            });
+        };
+
         // Guarantees that paths are expressed with
         // a ddbPath root or are absolute paths
         this._resolvePaths = function (ddbPath, paths) {
