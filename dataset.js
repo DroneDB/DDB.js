@@ -128,6 +128,7 @@ module.exports = class Dataset {
     async metaSet(key, data, path = "") {
         if (!key) throw new Error(`Invalid key ${key}`);
         if (data === undefined) throw new Error(`Invalid data`);
+        if (typeof data === "string") data = JSON.stringify(data);
         return this.registry.postRequest(`${this.baseApi}/meta/set`, {
             key, data, path
         });
