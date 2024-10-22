@@ -3,13 +3,14 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 const Organization = require('./organization');
-const { DEFAULT_REGISTRY } = require('./constants');
+const {DEFAULT_REGISTRY} = require('./constants');
 
 let refreshTimers = {};
 
-const throwError = (msg, status) => {
+const throwError = (msg, status, extraData = {}) => {
     const e = new Error(msg);
     e.status = status;
+    Object.assign(e, extraData);
     throw e;
 };
 
@@ -18,7 +19,7 @@ function parseJwt(token) {
     if (!token) return {};
     var base64Url = token.split('.')[1];
     var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
 
@@ -94,31 +95,31 @@ module.exports = class Registry {
         }
     }
 
-    async users(){
+    async users() {
         return await this.getRequest(`/users`);
     }
 
-    async userRoles(){
+    async userRoles() {
         return await this.getRequest(`/users/roles`);
     }
 
-    async addUser(username, password, roles = []){
+    async addUser(username, password, roles = []) {
         return await this.postRequest('/users', {
             username, password, roles: JSON.stringify(roles)
         });
     }
 
-    async deleteUser(username){
+    async deleteUser(username) {
         return await this.deleteRequest(`/users/${encodeURIComponent(username)}`);
     }
 
-    async changePwd(oldPassword, newPassword){
+    async changePwd(oldPassword, newPassword) {
         const res = await this.postRequest('/users/changePwd', {
             oldPassword, newPassword
         });
         if (res.token) {
             this.setCredentials(this.getUsername(), res.token, res.expires);
-        }else{
+        } else {
             throwError(res.error || `Cannot change password: ${JSON.stringify(res)}`, res.status);
         }
     }
@@ -135,7 +136,7 @@ module.exports = class Registry {
 
             if (res.token) {
                 this.setCredentials(this.getUsername(), res.token, res.expires);
-            }else{
+            } else {
                 throwError(res.error || `Cannot refresh token: ${JSON.stringify(res)}`, f.status);
             }
         } else {
@@ -201,7 +202,7 @@ module.exports = class Registry {
             if (!token)
                 return false;
 
-            const decoded = parseJwt(token); 
+            const decoded = parseJwt(token);
             if (!decoded)
                 return false;
 
@@ -217,7 +218,7 @@ module.exports = class Registry {
     }
 
     async createOrganization(slug, name, description, isPublic) {
-            
+
         if (!this.isLoggedIn())
             throw new Error("not logged in");
 
@@ -225,7 +226,7 @@ module.exports = class Registry {
             slug,
             name,
             description,
-            isPublic            
+            isPublic
         });
     }
 
@@ -299,22 +300,30 @@ module.exports = class Registry {
 
         const response = await fetch(`${this.url}${endpoint}`, options);
         if (response.status === 204) return true;
-        else if (response.status === 401) throwError("Unauthorized", 401);
+        else if (response.status === 401) {
+            const contentType = response.headers.get("Content-Type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                let json = await response.json();
+                throwError(json.error || "Unauthorized", 401, json);
+            } else {
+                throwError("Unauthorized", 401);
+            }
+        }
         else if (response.status === 404) throwError("Not found", 404);
         else if (method === "HEAD" && response.status === 200) return true;
-        else{
+        else {
             const contentType = response.headers.get("Content-Type");
-            if (contentType && contentType.indexOf("application/json") !== -1){
+            if (contentType && contentType.indexOf("application/json") !== -1) {
                 let json = await response.json();
                 if (json.error) throwError(json.error, response.status);
 
                 if (response.status === 200 || response.status === 201) return json;
                 else throwError(`Server responded with: ${JSON.stringify(json)}`, response.status);
-            }else if (contentType && contentType.indexOf("text/") !== -1){
+            } else if (contentType && contentType.indexOf("text/") !== -1) {
                 let text = await response.text();
                 if (response.status === 200 || response.status === 201) return text;
                 else throwError(`Server responded with: ${text}`, response.status);
-            }else{
+            } else {
                 throwError(`Server responded with: ${await response.text()}`, response.status);
             }
         }
